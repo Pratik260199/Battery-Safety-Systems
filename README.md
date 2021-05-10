@@ -2,8 +2,11 @@
 
 ## Description
 
-1) quickstart.py file contains the main code that reads and edits the data from the google spreadsheet.
-2) reqirements.txt file contains the list of all packages used in this project.
+1) Battery_System_Components.py file contains the main code that reads and edits the data from the google spreadsheet without using Google API.
+2) quickstart.py file contains the main code that reads and edits the data from the google spreadsheet using Google API.
+3) reqirements.txt file contains the list of all packages used in this project.
+
+NOTE : Since the file Battery_System_Components.py is integrated with pandas without using a Google API, it does not require a json file to fetch and edit the data from the spreadsheet.
 
 Files not being used in the project :
 1) samplesheets.py is a file I created as a test case. It is not being used in the project.
