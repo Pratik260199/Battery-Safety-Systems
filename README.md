@@ -6,7 +6,6 @@
 2) quickstart.py : Reads and edits data from spreadsheet without using Google API
 3) reqirements.txt file contains the list of all packages used in this project.
 
-NOTE : Since the file Battery_System_Components.py is integrated with pandas without using a Google API, it does not require a json file to fetch and edit the data from the spreadsheet.
 
 Files not being used in the project :
 1) samplesheets.py is a file I created as a test case. It is not being used in the project.
