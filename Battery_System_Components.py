@@ -13,7 +13,7 @@ creds = ServiceAccountCredentials.from_json_keyfile_name('bat-sys-comp-7e968489a
 # authorize the clientsheet
 client = gspread.authorize(creds)
 
-
+# specifying the sheet details
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/drive']
 SPREADSHEET_ID = '1izazCry301klvetVCTs9cxpSZgSI671jXkG3dRcfnoI'
 DATA_TO_PULL = 'Lists!A2:E8'
