@@ -28,3 +28,4 @@ def pull_sheet_data(SCOPES,SPREADSHEET_ID,DATA_TO_PULL):
     data = pull_sheet_data(SCOPES,SPREADSHEET_ID,DATA_TO_PULL)
 df = pd.DataFrame(data[0:7], columns=data[0])
 print(df)
+
