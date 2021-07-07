@@ -226,6 +226,6 @@ if __name__ == '__main__':
     # Tutorial_4()
     # Tutorial_5()
     # Tutorial_6()
-     Tutorial_7()
-    # Tutorial_8()
+    # Tutorial_7()
+     Tutorial_8()
     # Tutorial_9()
