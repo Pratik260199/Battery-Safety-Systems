@@ -26,9 +26,9 @@ def define_sheet_data(): # Make modular w/ 'sheet' input variable
     
     return(data)
 
-# Loops through all data on sheet specified sheet. Records data until a break 
+# Loops through all data on specified sheet. Records data until a break 
 # between two sections is reached and uses recorded data to create a new
-# dataframe. Clears recorded data. Repeats process until end of sheet data.
+# dataframe. Clears recorded data. Repeats process until end of sheet.
 # Returns list of dataframes
 def create_dataframes(data):
 
@@ -43,12 +43,13 @@ def create_dataframes(data):
                 if i == data[-1]: # Needed to add last line of last section
                     section.append(i) 
                     
-                # section[0] should always be the label
-                df.append(pd.DataFrame(section[1:len(section)], columns=section[0]))
+                # section[0] should always be the label from spreadsheet
+                df.append(pd.DataFrame(section[1:len(section)], columns=section[0])
+                          .set_index("Select a Configuration", drop = True))
                 section = []
         else:
             section.append(i)
-        
+           
     return(df)
 
 dataframes = create_dataframes(define_sheet_data())
