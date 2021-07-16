@@ -13,7 +13,7 @@ def define_sheet_data(sheet):
     scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
     
     # Adding credentials to the account; Make sure to change to your .json key
-    creds = ServiceAccountCredentials.from_json_keyfile_name('summer-research-317018-39e77d37138c.json', scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_name('me-summer-project-61b3f64d4f79.json', scope)
     
     # Authorizing the clientsheet
     client = gspread.authorize(creds)
