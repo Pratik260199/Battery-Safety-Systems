@@ -4,7 +4,11 @@ import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 
-def define_sheet_data(): # Make modular w/ 'sheet' input variable
+# Reads data from the linked Google Sheet
+# Inputs:
+    # sheet: The sheet name to read from (ex: Battery_System_Components')
+
+def define_sheet_data(sheet): 
     # Defining the scope
     scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
     
@@ -17,7 +21,7 @@ def define_sheet_data(): # Make modular w/ 'sheet' input variable
     # specifying the sheet details
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/drive']
     SPREADSHEET_ID = '1izazCry301klvetVCTs9cxpSZgSI671jXkG3dRcfnoI'
-    DATA_TO_PULL = 'Battery_System_Components' # Put 'sheet' input variable here
+    DATA_TO_PULL = sheet # Put 'sheet' input variable here
     service = build('sheets', 'v4', credentials=creds)
     sheet = service.spreadsheets()
     
@@ -26,11 +30,15 @@ def define_sheet_data(): # Make modular w/ 'sheet' input variable
     
     return(data)
 
+
 # Loops through all data on specified sheet. Records data until a break 
 # between two sections is reached and uses recorded data to create a new
 # dataframe. Clears recorded data. Repeats process until end of sheet.
-# Returns list of dataframes
-def create_dataframes(data):
+# Inputs:
+    # data: the sheet 
+    # index: 
+# Return: List of dataframes
+def create_dataframes(data, index):
 
     df = [] # List for whole dataframe
     section = [] # List for individual sections
@@ -45,18 +53,41 @@ def create_dataframes(data):
                     
                 # section[0] should always be the label from spreadsheet
                 df.append(pd.DataFrame(section[1:len(section)], columns=section[0])
-                          .set_index("Select a Configuration", drop = True))
+                          .set_index(index, drop = True))
                 section = []
         else:
             section.append(i)
            
     return(df)
 
-dataframes = create_dataframes(define_sheet_data())
+# Used to find a specific number from pandas dataframe
+# Inputs:
+    # dataframe: dataframe to be read (ex. for us: components[3])
+    # component: Part to look for (ex. for us: housing.index[1] or 'Shipping Container')
+    # spec: Data specification you want (ex. for us: 'Width (mm)')
+# Note: This works only for numbers due to the float() function
+def find_num(dataframe, component, spec):
+
+    value = float(dataframe.loc[component, spec])
+        
+    return(value)
+
+# Used to find a specific word from pandas dataframe
+# Inputs:
+    # dataframe: dataframe to be read (ex. for us: components[3])
+    # component: Part to look for (ex. for us: housing.index[1] or 'Shipping Container')
+    # spec: Data specification you want (ex. for us: 'Width (mm)')
+# Note: All values will be returned as strings
+def find_word(dataframe, component, spec):
+
+    value = dataframe.loc[component, spec]
+    
+    return(value)
 
 '''
 # Example for implementing in code
 if __name__ == '__main__':
     page = 'Battery_System_Components'  # Must be name of sheet to look at
-    dataframes = create_dataframes(define_sheet_data(page))
+    index = 'Select a Configuration' # What you want the index of the data frame to be
+    components = create_dataframes(define_sheet_data(page), index)
 '''
