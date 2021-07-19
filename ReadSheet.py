@@ -64,7 +64,7 @@ def create_dataframes(data, index):
 
 # Used to find a specific number from pandas dataframe
 # Inputs:
-    # dataframe: dataframe to be read (ex. for us: components[3])
+    # dataframe: Dataframe to be read (ex. for us: components[3])
     # component: Part to look for (ex. for us: housing.index[1] or 'Shipping Container')
     # spec: Data specification you want (ex. for us: 'Width (mm)')
 # Note: This works only for numbers due to the float() function
@@ -76,7 +76,7 @@ def find_num(dataframe, component, spec):
 
 # Used to find a specific word from pandas dataframe
 # Inputs:
-    # dataframe: dataframe to be read (ex. for us: components[3])
+    # dataframe: Dataframe to be read (ex. for us: components[3])
     # component: Part to look for (ex. for us: housing.index[1] or 'Shipping Container')
     # spec: Data specification you want (ex. for us: 'Width (mm)')
 # Note: All values will be returned as strings
@@ -87,28 +87,46 @@ def find_word(dataframe, component, spec):
     return(value)
 
 
-# Example for implementing in code
-if __name__ == '__main__':
-    page = 'Battery_System_Components'  # Must be name of sheet to look at
-    index = 'Select a Configuration' # What you want the index of the data frame to be
-    components = create_dataframes(define_sheet_data(page), index)
-    
-    
-    ### For creating a csv parameter file and adding it to pybamm
-    
-    # Takes a dataframe and converts it to a csv file
-    filename = 'Housing.csv'
-    components[3].to_csv(filename)   
+# Creates a csv parameter file and adds it to pybamm
+# Inputs:
+    # filename: The name to save the csv as (for pybamm, use format 'AuthorYear')
+    # param_folder: The parameter folder (eg. cells, electrolytes, etc.) in 
+    #               pybamm to save the csv to
+    # foldername: The name of the new folder within the parameter folder
+    # data: The dataframe to turn into the csv
+def save_csv_to_bamm(filename, param_folder, foldername, data):
+    # Takes a dataframe and converts it to a csv file 
+    components[3].to_csv(f'{filename}.csv')   
     
     # Looks through local directory and creates a new folder if folder does not 
     # currently exist. 
-    parameter_folder = 'cells'
-    foldername = 'Folder'
     cur_path = 'C:/Users/Ryan/Documents/Purdue/2021 Summer/Research/Li-Ion/Battery-Safety-Systems/'
-    newpath = f'C:/Users/Ryan/anaconda3/Lib/site-packages/pybamm/input/parameters/lithium-ion/{parameter_folder}/{foldername}'
+    newpath = f'C:/Users/Ryan/anaconda3/Lib/site-packages/pybamm/input/parameters/lithium-ion/{param_folder}/{foldername}'
     if not os.path.exists(newpath):
         os.makedirs(newpath)
     
     # Moves new csv file into newly created folder in pybamm local directory
-    os.rename(f'{cur_path}/{filename}',
-              f'{newpath}/{filename}')
+    os.rename(f'{cur_path}/{filename}.csv',
+              f'{newpath}/{filename}.csv')
+    
+    return
+
+
+# Example for implementing in code
+if __name__ == '__main__':
+    page = 'Battery_System_Components'  # Must be name of sheet to look at
+    index = 'Select a Configuration' # Setting the index of the dataframe
+    components = create_dataframes(define_sheet_data(page), index)
+    
+'''    
+    filename = 'Housing' # Use format 'AuthorYear'
+    param_folder = 'cells' # Reference pybamm local directory for names
+    foldername = 'Folder' # Use format 'Material_AuthorYear'
+    
+###### You wil need to change the local directories in save_csv_to_bamm in 
+###### order for this function to work
+    save_csv_to_bamm(filename, param_folder, foldername, components[3])
+'''    
+    
+    
+    
