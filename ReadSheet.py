@@ -3,6 +3,8 @@ import gspread
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
+import os
+
 
 # Reads data from the linked Google Sheet
 # Inputs:
@@ -13,7 +15,7 @@ def define_sheet_data(sheet):
     scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
     
     # Adding credentials to the account; Make sure to change to your .json key
-    creds = ServiceAccountCredentials.from_json_keyfile_name('me-summer-project-61b3f64d4f79.json', scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_name('summer-research-317018-39e77d37138c.json', scope)
     
     # Authorizing the clientsheet
     client = gspread.authorize(creds)
@@ -35,8 +37,8 @@ def define_sheet_data(sheet):
 # between two sections is reached and uses recorded data to create a new
 # dataframe. Clears recorded data. Repeats process until end of sheet.
 # Inputs:
-    # data: the sheet 
-    # index: 
+    # data: The sheet name (ex. 'Battery_System_Components')
+    # index: The column to set as index (ex. 'Select a Configuration')
 # Return: List of dataframes
 def create_dataframes(data, index):
 
@@ -84,10 +86,29 @@ def find_word(dataframe, component, spec):
     
     return(value)
 
-'''
+
 # Example for implementing in code
 if __name__ == '__main__':
     page = 'Battery_System_Components'  # Must be name of sheet to look at
     index = 'Select a Configuration' # What you want the index of the data frame to be
     components = create_dataframes(define_sheet_data(page), index)
-'''
+    
+    
+    ### For creating a csv parameter file and adding it to pybamm
+    
+    # Takes a dataframe and converts it to a csv file
+    filename = 'Housing.csv'
+    components[3].to_csv(filename)   
+    
+    # Looks through local directory and creates a new folder if folder does not 
+    # currently exist. 
+    parameter_folder = 'cells'
+    foldername = 'Folder'
+    cur_path = 'C:/Users/Ryan/Documents/Purdue/2021 Summer/Research/Li-Ion/Battery-Safety-Systems/'
+    newpath = f'C:/Users/Ryan/anaconda3/Lib/site-packages/pybamm/input/parameters/lithium-ion/{parameter_folder}/{foldername}'
+    if not os.path.exists(newpath):
+        os.makedirs(newpath)
+    
+    # Moves new csv file into newly created folder in pybamm local directory
+    os.rename(f'{cur_path}/{filename}',
+              f'{newpath}/{filename}')
