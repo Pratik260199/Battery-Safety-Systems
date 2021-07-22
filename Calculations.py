@@ -130,3 +130,19 @@ if __name__ == '__main__':
     page = 'Battery_System_Components'  # Must be name of sheet to look at
     dataframes = create_dataframes(define_sheet_data(page))
 '''
+
+# Time Value of Money Calculations
+# 2021 Projected Median storage costs = $313/kWh for 4 hr battery system; $1252/kW for battery system
+# Assume system lifetime to be 25 years
+
+capitalcost = totalcost
+omcost = (2/100)*capitalcost  # Typically for battery systems (2%)
+storedcost = 313 #kWh
+rate = 0.000001 #What rate is this? Inflation?
+loss = 100 #How much $ worth of system loss
+
+# For the following - need to check units, rates and conversion from future to present value
+totalstcost = storedcost/((1+rate)**(25*365*24))   # 25 years times 365 days times 24 hours
+LCOS = (capitalcost+omcost+loss)/totalstcost
+print('Levelized cost of system is USD:', LCOS)
+
