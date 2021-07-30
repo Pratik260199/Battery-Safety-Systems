@@ -132,17 +132,18 @@ if __name__ == '__main__':
 '''
 
 # Time Value of Money Calculations
-# 2021 Projected Median storage costs = $313/kWh for 4 hr battery system; $1252/kW for battery system
-# Assume system lifetime to be 25 years
+ratedPower = 1       #Where to get data from
+storageDuration = 2  #Where to get data from
+eta_RTE = 3   #Where to get data from
+eta_discharge = 4     #Where to get data from
+eta_charge = 5        #Where to get data from
+capX_energy = 6      #Where to get data from
+capX_power = 7        #Where to get data from
+OM = 0.02*totalcost   #Where to get data from
+elecPrice = 9         #Where to get data from
 
-capitalcost = totalcost
-omcost = (2/100)*capitalcost  # Typically for battery systems (2%)
-storedcost = 313 #kWh
-rate = 0.000001 #What rate is this? Inflation?
-loss = 100 #How much $ worth of system loss
+from lcosScripts import calculateLCOS
+LCOS = calculateLCOS(ratedPower, storageDuration, eta_RTE, eta_discharge, eta_charge, capX_energy, capX_power, OM, elecPrice)
+print(LCOS)
 
-# For the following - need to check units, rates and conversion from future to present value
-totalstcost = storedcost/((1+rate)**(25*365*24))   # 25 years times 365 days times 24 hours
-LCOS = (capitalcost+omcost+loss)/totalstcost
-print('Levelized cost of system is USD:', LCOS)
 
