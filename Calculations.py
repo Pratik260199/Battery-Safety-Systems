@@ -134,15 +134,13 @@ if __name__ == '__main__':
 '''
 
 ###################################################### Time Value of Money Calculations ################################################
-hoursdischarge = 2   #Convert this to pull data from the experiment we are running
-ratedPower = 1       #Sys  energy capacity/hours of discharge
-storageDuration = 2  #Number of hours are variable - case by case basis
+hoursdischarge = 2   #Convert this to pull data from the experiment we are running #Pull from experiment
+storageDuration = 2  #Number of hours are variable - case by case basis #Pull from experiment
 eta_RTE = 0.81   #Conservative estimate
 eta_discharge = 0.9
 eta_charge = 0.9
 
-#capX_energy - needs input from either PybaMM or own model
-capX_energy = 100 #Placeholder value       #How much energy is being produced
+capX_energy = 100 #Placeholder value       #How much energy is being produced #This is totalcost/(capacity of 1 cell*No of cells per module*No of modules per rack*No of racks)
 ratedPower = capX_energy/hoursdischarge  #Sys energy capacity/hours of discharge
 capX_power = 0
 OM = 0.02*totalcost
