@@ -53,7 +53,7 @@ def create_dataframes(data):
 
     return (df)
 
-
+################################################### Cost Calculations ######################################################
 # Cost Total for Cell Components
 dataframes = create_dataframes(define_sheet_data())
 df0 = dataframes[0]
@@ -94,6 +94,8 @@ print('Total estimated cost (USD) for Housing:', maxsumcost3)
 totalcost = maxsumcost0 + maxsumcost1 + maxsumcost2 + maxsumcost3
 print('Total estimated cost (USD) for system:', totalcost)
 
+
+################################################### Weight Calculations ######################################################
 # Weight Total for Rack Components
 dataframes = create_dataframes(define_sheet_data())
 df1 = dataframes[1]
@@ -131,16 +133,20 @@ if __name__ == '__main__':
     dataframes = create_dataframes(define_sheet_data(page))
 '''
 
-# Time Value of Money Calculations
-ratedPower = 1       #Where to get data from
-storageDuration = 2  #Where to get data from
-eta_RTE = 3   #Where to get data from
-eta_discharge = 4     #Where to get data from
-eta_charge = 5        #Where to get data from
-capX_energy = 6      #Where to get data from
-capX_power = 7        #Where to get data from
-OM = 0.02*totalcost   #Where to get data from
-elecPrice = 9         #Where to get data from
+###################################################### Time Value of Money Calculations ################################################
+hoursdischarge = 2   #Convert this to pull data from the experiment we are running
+ratedPower = 1       #Sys  energy capacity/hours of discharge
+storageDuration = 2  #Number of hours are variable - case by case basis
+eta_RTE = 0.81   #Conservative estimate
+eta_discharge = 0.9
+eta_charge = 0.9
+
+#capX_energy - needs input from either PybaMM or own model
+capX_energy = 100 #Placeholder value       #How much energy is being produced
+ratedPower = capX_energy/hoursdischarge  #Sys energy capacity/hours of discharge
+capX_power = 0
+OM = 0.02*totalcost
+elecPrice = 0.025 #per kWH
 
 from lcosScripts import calculateLCOS
 LCOS = calculateLCOS(ratedPower, storageDuration, eta_RTE, eta_discharge, eta_charge, capX_energy, capX_power, OM, elecPrice)
