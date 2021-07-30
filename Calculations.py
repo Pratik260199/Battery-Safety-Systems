@@ -4,6 +4,8 @@ import pandas as pd
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 
+import ReadSheet as read
+
 
 def define_sheet_data():  # Make modular w/ 'sheet' input variable
     # Defining the scope
@@ -134,13 +136,33 @@ if __name__ == '__main__':
 '''
 
 ###################################################### Time Value of Money Calculations ################################################
-hoursdischarge = 2   #Convert this to pull data from the experiment we are running #Pull from experiment
+components = read.create_dataframes(read.define_sheet_data('Battery_System_Components'), "Select a Configuration")
+cell = components[0]
+module = components[1]
+rack = components[2]
+housing = components[3]
+
+cells = read.find_num(module, module.index[2], 'Number per module')
+modules = read.find_num(rack, rack.index[0], 'Number per rack')
+racks = read.find_num(housing, housing.index[0], 'Number')
+
+AnodeCapacity = read.find_num(cell, cell.index[2], 'Total Capacity [Ah]')*read.find_num(cell, cell.index[8], 'Nominal Voltage (V)')
+CathodeCapacity = read.find_num(cell, cell.index[5], 'Total Capacity [Ah]')*read.find_num(cell, cell.index[8], 'Nominal Voltage (V)')
+
+if AnodeCapacity < CathodeCapacity:
+    cellcapacity = AnodeCapacity
+else: cellcapacity = CathodeCapacity
+
+totalenergy = cellcapacity*cells*modules*racks
+print(totalenergy)
+
+hoursdischarge = 4   #Convert this to pull data from the experiment we are running #Pull from experiment
 storageDuration = 2  #Number of hours are variable - case by case basis #Pull from experiment
 eta_RTE = 0.81   #Conservative estimate
 eta_discharge = 0.9
 eta_charge = 0.9
 
-capX_energy = 100 #Placeholder value       #How much energy is being produced #This is totalcost/(capacity of 1 cell*No of cells per module*No of modules per rack*No of racks)
+capX_energy = totalcost/totalenergy       #How much energy is being produced #This is totalcost/(capacity of 1 cell*No of cells per module*No of modules per rack*No of racks)
 ratedPower = capX_energy/hoursdischarge  #Sys energy capacity/hours of discharge
 capX_power = 0
 OM = 0.02*totalcost
