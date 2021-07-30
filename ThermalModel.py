@@ -28,6 +28,7 @@ def k_to_f(k):
 
     return(f)
 
+
 # Converts British Thermal Units (BTU) to kiloJoules (kJ)
 def BTU_to_kJ(BTU):
 
@@ -363,14 +364,15 @@ from scipy.optimize import minimize, Bounds, LinearConstraint
 
 def objfxn(x):
     return np.sum(np.square(x[end*2:end*3])) # we're only minimizing HVAC usage
-
+print(Q_HVAC)
+print(np.average(Q_CON))
 lb = Q_CON.copy() # this is an equality constraint
 ub = Q_CON.copy() # this is an equality constraint
 lb.extend([Q_BAT]*end) # repeats the one value of Q_BAT the same number of times, this could be different if we have time dependent Q_Bat data
 ub.extend([Q_BAT]*end) # same as lb because it's an equality constraint
 x0start = lb.copy()
-lb.extend([-Q_HVAC*10]*end) # maximum heat removal
-ub.extend([Q_HVAC*10]*end) # maximum heat that we can generate. I don't know if this is right. If no heater, replace Q_HVAC with 0
+lb.extend([-Q_HVAC*30]*end) # maximum heat removal
+ub.extend([Q_HVAC*30]*end) # maximum heat that we can generate. I don't know if this is right. If no heater, replace Q_HVAC with 0
 lb.extend([-20+273]*(end)) # I just made up a minimum temperature
 ub.extend([40+273]*(end)) # I just made up a maximum temperature
 lb.extend([0]) # there's one extra temperature term, these are Kelvin, can't be below absolute zero
@@ -387,6 +389,10 @@ lc = LinearConstraint(lcArray, np.zeros(end), np.zeros(end))
 res = minimize(objfxn, np.array(x0start), method = 'trust-constr', constraints = lc, bounds = bounds)
 print(res.x) #items 0:end are Q_con, end:2*end are Q_Bat, 2*end:3*end are Q_HVAC (what we're interested in), and 3*end:-2 are the temperatures we care about
 
+q_con_out = res.x[0:end]
+q_bat_out = res.x[end:2*end]
+q_hvac_out = res.x[2*end:3*end]
+temp_out = res.x[3*end:-1] #keeps matching number of datapoints 
 ################################### Main ######################################
 if __name__ == '__main__':
 
