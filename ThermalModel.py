@@ -7,7 +7,7 @@ import pybamm
 rho = 1.225 # kg/m^3 ; Density of air
 c_v = 0.718 # kJ/kg.K ; Specific heat with constant volume at 300K
 temp_set = 75 # degrees F ; Baseline temp
-h = 5 # W/m^2.K ; Convection heat transfer coefficient
+h = 10 # W/m^2.K ; Convection heat transfer coefficient
 c_p = .7585 # kJ/kg.K ; Specific heat at constant pressure (atmospheric)
           # Average of steel and air; Steel = 0.51, Air = 1.007
 ###############################################################################
@@ -200,19 +200,15 @@ def Q_convection(mnly, housing, temp_set, h, step):
     # cell: Cell dataframe
     # temp_set: Set interior temperature
 def Q_bat(temp_set, duration):
-    #duration = 2
     components = read.create_dataframes(read.define_sheet_data('Battery_System_Components'), "Select a Configuration")
     cell = components[0]
     module = components[1]
     rack = components[2]
     housing = components[3]
 
-
     options = {"thermal": 'x-full'}
     model = pybamm.lithium_ion.SPMe(options=options)
     parameter_values = model.default_parameter_values
-    print(type(parameter_values))
-    #parameter_values = pybamm.ParameterValues(chemistry=pybamm.parameter_sets.Chen2020)
 
     if duration == 2:
         experiment = pybamm.Experiment(
@@ -269,73 +265,55 @@ def Q_bat(temp_set, duration):
     sim.solve()
 
     bam_data = sim.solution['Volume-averaged total heating [W.m-3]'].entries
-    print(len(bam_data))
-    print(len(sim.solution['Total heating'].entries))
-    print(len(sim.solution['Time [h]'].entries))
-    print(sim.solution['Time [h]'].entries[60])
     #plt.plot(sim.solution['Time [h]'].entries, bam_data)
 
 
     q_out = np.zeros(24)
-    print(q_out)
-
-    q_out[18] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[0:60])
-    q_out[19] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[60:120])
+    q_out[18] = np.sum(bam_data[0:60])
+    q_out[19] = np.sum(bam_data[60:120])
 
     if duration == 2:
-        q_out[12] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[180:240])
-        q_out[13] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[240:300])
+        q_out[12] = np.sum(bam_data[180:240])
+        q_out[13] = np.sum(bam_data[240:300])
 
     if duration == 4:
-        q_out[20] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[120:180])
-        q_out[21] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[180:240])
-        q_out[11] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[300:360])
-        q_out[12] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[360:420])
-        q_out[13] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[420:480])
-        q_out[14] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[480:600])
+        q_out[20] = np.sum(bam_data[120:180])
+        q_out[21] = np.sum(bam_data[180:240])
+        q_out[11] = np.sum(bam_data[300:360])
+        q_out[12] = np.sum(bam_data[360:420])
+        q_out[13] = np.sum(bam_data[420:480])
+        q_out[14] = np.sum(bam_data[480:600])
     if duration == 8:
-        q_out[20] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[120:180])
-        q_out[21] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[180:240])
-        q_out[22] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[240:300])
-        q_out[23] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[300:360])
-        q_out[0] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[360:420])
-        q_out[1] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[420:480])
+        q_out[20] = np.sum(bam_data[120:180])
+        q_out[21] = np.sum(bam_data[180:240])
+        q_out[22] = np.sum(bam_data[240:300])
+        q_out[23] = np.sum(bam_data[300:360])
+        q_out[0] = np.sum(bam_data[360:420])
+        q_out[1] = np.sum(bam_data[420:480])
 
-        q_out[9] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[540:600])
-        q_out[10] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[600:660])
-        q_out[11] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[660:720])
-        q_out[12] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[720:780])
-        q_out[13] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[660:720])
-        q_out[14] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[720:780])
-        q_out[15] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[780:840])
-        q_out[16] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[840:800])
-
-    #print(q_out)
-
-
+        q_out[9] = np.sum(bam_data[540:600])
+        q_out[10] = np.sum(bam_data[600:660])
+        q_out[11] = np.sum(bam_data[660:720])
+        q_out[12] = np.sum(bam_data[720:780])
+        q_out[13] = np.sum(bam_data[660:720])
+        q_out[14] = np.sum(bam_data[720:780])
+        q_out[15] = np.sum(bam_data[780:840])
+        q_out[16] = np.sum(bam_data[840:800])
 
     cells = read.find_num(module, module.index[2], 'Number per module')
-    print(cells)
     modules = read.find_num(rack, rack.index[0], 'Number per rack')
-    print(modules)
     racks = read.find_num(housing, housing.index[0], 'Number')
-    print(racks)
 
-    bat_thick = read.find_num(cell, cell.index[2], 'Thickness [m]') * 2 + .000025
-    print(bat_thick)
+    bat_thick = read.find_num(cell, cell.index[2], 'Thickness [m]') * 2 + .000025 * 35
     bat_width = read.find_num(cell, cell.index[2], 'Width [mm]')/1000
     bat_len = read.find_num(cell, cell.index[2], 'Length [mm]')/1000
 
     bat_volume = bat_thick * bat_width * bat_len #* cells * modules * racks
-    print(bat_volume)
-
     q_out = q_out*60*60 #watts to J
 
     # kJ = ((W/m^3 / unitless) * m * m * m) / (J/kJ)
     #Q_BAT = (float(sum(heat_range))/float(len(heat_range))) * bat_thick * bat_width * (10**(-3)) * bat_len * (10**(-3)) * ((cells * modules * racks)**2) / 1000
     Q_BAT = q_out * bat_volume/1000
-    #print(Q_BAT)
-
     return(Q_BAT)
 
 
@@ -417,80 +395,50 @@ def total_thermal(temp_data, h, step, temp_set, num_HVAC, T_prev):
 
 ###############################################################################
 # Rebecca - Thermal optimization
-#def thermalOptimization(data, h, step, temp_set):
-components = read.create_dataframes(read.define_sheet_data('Battery_System_Components'), "Select a Configuration")
-cell = components[0]
-housing = components[3]
+def thermalOptimization(data, h, step, temp_set, duration):
+    components = read.create_dataframes(read.define_sheet_data('Battery_System_Components'), "Select a Configuration")
+    cell = components[0]
+    housing = components[3]
 
-#T_final = []
-end = 24*7 # starting with one week
-temp_data = monthly_temp(0, 0, end)
-print(temp_data[0])
-T_start = temp_data[1]
-step = 1
+    # starting with one week
+    T_start = temp_data[1]
 
+    Q_HVAC = Q_hvac(housing, 'BTU Rating (cooling)') # does this unit match the others?
+    Q_CON = Q_convection(temp_data, housing, temp_set, h, step)[0]
+    Q_BAT = Q_bat(temp_set, 4)
+    m = Q_convection(temp_data, housing, temp_set, h, step)[1]
 
-Q_HVAC = Q_hvac(housing, 'BTU Rating (cooling)') # does this unit match the others?
-Q_CON = Q_convection(temp_data, housing, temp_set, h, step)[0]
-print(Q_CON)
-Q_BAT = Q_bat(temp_set, 4) # Still working to convert heat to kJ
-print(list(Q_BAT))
-#Q_BAT = 36000 # Remove when function works
-bat= list(Q_BAT)
-print(len(bat))
-m = Q_convection(temp_data, housing, temp_set, h, step)[1]
+    from scipy.optimize import minimize, Bounds, LinearConstraint
 
-from scipy.optimize import minimize, Bounds, LinearConstraint
-
-def objfxn(x):
-    return np.sum(np.square(x[end*2:end*3])) # we're only minimizing HVAC usage
-print(Q_HVAC)
-print(np.average(Q_CON))
-lb = Q_CON.copy() # this is an equality constraint
-ub = Q_CON.copy() # this is an equality constraint
-print(len(lb))
-print(len(list(Q_BAT)))
-lb.extend(Q_BAT)
-lb.extend(Q_BAT)
-lb.extend(Q_BAT)
-lb.extend(Q_BAT)
-lb.extend(Q_BAT)
-lb.extend(Q_BAT)
-lb.extend(Q_BAT) # repeats the one value of Q_BAT the same number of times, this could be different if we have time dependent Q_Bat data
-
-ub.extend(Q_BAT)
-ub.extend(Q_BAT)
-ub.extend(Q_BAT)
-ub.extend(Q_BAT)
-ub.extend(Q_BAT)
-ub.extend(Q_BAT)
-ub.extend(Q_BAT)
- # same as lb because it's an equality constraint
-print(len(lb))
-x0start = lb.copy()
-lb.extend([-Q_HVAC*30]*end) # maximum heat removal
-ub.extend([Q_HVAC*30]*end) # maximum heat that we can generate. I don't know if this is right. If no heater, replace Q_HVAC with 0
-lb.extend([-20+273]*(end)) # I just made up a minimum temperature
-ub.extend([40+273]*(end)) # I just made up a maximum temperature
-lb.extend([0]) # there's one extra temperature term, these are Kelvin, can't be below absolute zero
-ub.extend([np.inf])
-x0start.extend([2]*end)
-x0start.extend([T_start]*(end+1))
-tempArray = np.zeros((end,end+1))
-for n in range(end):
-    tempArray[n,n] = m*c_p
-    tempArray[n, n+1] = -1*m*c_p
-lcArray = np.hstack((np.identity(end), np.identity(end), np.identity(end), tempArray))
-bounds = Bounds(lb,ub)
-lc = LinearConstraint(lcArray, np.zeros(end), np.zeros(end))
-res = minimize(objfxn, np.array(x0start), method = 'trust-constr', constraints = lc, bounds = bounds)
-print(res.x) #items 0:end are Q_con, end:2*end are Q_Bat, 2*end:3*end are Q_HVAC (what we're interested in), and 3*end:-2 are the temperatures we care about
-
-q_con_out = res.x[0:end]
-q_bat_out = res.x[end:2*end]
-q_hvac_out = res.x[2*end:3*end]
-temp_out = res.x[3*end:-1] #keeps matching number of datapoints
+    def objfxn(x):
+        return np.sum(np.square(x[end*2:end*3])) # we're only minimizing HVAC usage
+    #print(Q_HVAC, np.average(Q_CON))
+    lb = Q_CON.copy() # this is an equality constraint
+    ub = Q_CON.copy() # this is an equality constraint
+    lb.extend(np.tile(Q_BAT, int(len(temp_data)/24)))
+    ub.extend(np.tile(Q_BAT, int(len(temp_data)/24)))
+    x0start = lb.copy()
+    lb.extend([-Q_HVAC*30]*len(temp_data)) # maximum heat removal
+    ub.extend([Q_HVAC*30]*len(temp_data)) # maximum heat that we can generate. I don't know if this is right. If no heater, replace Q_HVAC with 0
+    lb.extend([287]*(len(temp_data))) # I just made up a minimum temperature, 10 lower than setpoint
+    ub.extend([307]*(len(temp_data))) # I just made up a maximum temperature, 10 higher than setpoint 
+    lb.extend([0]) # there's one extra temperature term, these are Kelvin, can't be below absolute zero
+    ub.extend([np.inf])
+    x0start.extend([2]*len(temp_data))
+    x0start.extend([T_start]*(len(temp_data)+1))
+    tempArray = np.zeros((len(temp_data),len(temp_data)+1))
+    for n in range(len(temp_data)):
+        tempArray[n,n] = m*c_p
+        tempArray[n, n+1] = -1*m*c_p
+    lcArray = np.hstack((np.identity(len(temp_data)), np.identity(len(temp_data)), np.identity(len(temp_data)), tempArray))
+    bounds = Bounds(lb,ub)
+    lc = LinearConstraint(lcArray, np.zeros(len(temp_data)), np.zeros(len(temp_data)))
+    res = minimize(objfxn, np.array(x0start), method = 'trust-constr', constraints = lc, bounds = bounds)
+    #print(res.x) #items 0:end are Q_con, end:2*end are Q_Bat, 2*end:3*end are Q_HVAC (what we're interested in), and 3*end:-2 are the temperatures we care about
+    return (res)
+     #keeps matching number of datapoints
 ################################### Main ######################################
+
 if __name__ == '__main__':
 
     components = read.create_dataframes(read.define_sheet_data('Battery_System_Components'), "Select a Configuration")
@@ -502,19 +450,23 @@ if __name__ == '__main__':
 
     # Variable variables
     region = 1 # Currently 0 or 1
-    start = 6000 # 0 representing Jan 1st
-    end = 6100 # 8760 representing Dec 31st
+    start = 0 # 0 representing Jan 1st
+    end = 8760 # 8760 representing Dec 31st
     step = 1 # Number of hours between recording data points
-
+    duration = 8 #2, 4, or 8 hours
 
     # Determines temperature data from region over time period
-    temp_data = monthly_temp(region, start, end)
+    temp_data = monthly_temp(region, 0, 8760)
+    day_start = 0
+    day_end = 3
+    temp_data = temp_data[day_start*24:day_end*24] #needs to be a multiple of 24 # I was getting some funkiness with different start/end points
+    print(len(temp_data))
 
     T_prev = 1000000000
     num_HVAC = read.find_num(housing, housing.index[3], 'Number')
 
     # Determines thermal data (The units are off atm so thing look weird)
-    thermal_data = total_thermal(temp_data, h, step, f_to_k(temp_set), num_HVAC, T_prev)
+    #thermal_data = total_thermal(temp_data, h, step, f_to_k(temp_set), num_HVAC, T_prev)
 
 
     '''
@@ -531,13 +483,21 @@ if __name__ == '__main__':
     plt.plot(time, temp_data, linestyle = 'solid')
     '''
 
-    x = sum(thermal_data)/len(thermal_data)
+    #x = sum(thermal_data)/len(thermal_data)
 
+    r = thermalOptimization(temp_data, h, step, temp_set, duration)
+    print(len(r.x))
+    q_conv = r.x[0:len(temp_data)]
+    q_bat = r.x[len(temp_data):2*len(temp_data)]
+    q_hvac = r.x[2*len(temp_data):3*len(temp_data)]
+    temps = r.x[3*len(temp_data):4*len(temp_data)]
 
 
     # Use first plot format due to automatic updates to title
-    time = np.arange(start,start+len(thermal_data),step)
-    plt.plot(time, thermal_data, linestyle = 'dotted', color ='blue', label = 'Estimated Interior Temperatures')
+    plt.figure()
+    time = np.arange(day_start*24,day_start*24+len(temp_data),step)
+    #plt.plot(time, thermal_data, linestyle = 'dotted', color ='blue', label = 'Estimated Interior Temperatures')
+    plt.plot(time, temps, linestyle = 'dotted', color ='blue', label = 'Estimated Interior Temperatures')
     #plt.plot(time,temp_data, color ='green', label = 'Ambient Temperature')
     plt.xlabel("Time (Hour)")
     plt.ylabel("Housing Temp (K)")
