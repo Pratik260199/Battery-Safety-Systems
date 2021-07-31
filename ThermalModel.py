@@ -7,7 +7,7 @@ import pybamm
 rho = 1.225 # kg/m^3 ; Density of air
 c_v = 0.718 # kJ/kg.K ; Specific heat with constant volume at 300K
 temp_set = 75 # degrees F ; Baseline temp
-h = 10 # W/m^2.K ; Convection heat transfer coefficient
+h = 5 # W/m^2.K ; Convection heat transfer coefficient
 c_p = .7585 # kJ/kg.K ; Specific heat at constant pressure (atmospheric)
           # Average of steel and air; Steel = 0.51, Air = 1.007
 ###############################################################################
@@ -199,8 +199,8 @@ def Q_convection(mnly, housing, temp_set, h, step):
 # Inputs:
     # cell: Cell dataframe
     # temp_set: Set interior temperature
-def Q_bat(temp_set):
-
+def Q_bat(temp_set, duration):
+    #duration = 2
     components = read.create_dataframes(read.define_sheet_data('Battery_System_Components'), "Select a Configuration")
     cell = components[0]
     module = components[1]
@@ -209,56 +209,132 @@ def Q_bat(temp_set):
 
 
     options = {"thermal": 'x-full'}
-    #chemistry = pybamm.parameter_sets.Chen2020 #this was already here
-    #parameter_values = pybamm.ParameterValues(chemistry=chemistry) # this was already here
     model = pybamm.lithium_ion.SPMe(options=options)
     parameter_values = model.default_parameter_values
+    print(type(parameter_values))
+    #parameter_values = pybamm.ParameterValues(chemistry=pybamm.parameter_sets.Chen2020)
 
-    experiment = pybamm.Experiment(
-        [
-            ('Discharge at 4C for 10 hours or until 3.3 V',
-             'Rest for 1 hour',
-             'Charge at 1 A until 4.1 V',
-             'Hold at 4.1 V until 50 mA',
-             'Rest for 1 hour'),
-        ] * 3
-    )
+    if duration == 2:
+        experiment = pybamm.Experiment(
+            [
+                ('Discharge at C/2 for 2 hours or until 3.3 V',
+                 'Rest for 1 hours',
+                 'Charge at C/2 until 4.1 V',
+                 #'Hold at 4.1V until 50 mA',
+                 'Rest for 1 hour')
+            ] * 1
+        )
+
+    if duration == 4:
+        experiment = pybamm.Experiment(
+            [
+                ('Discharge at C/4 for 4 hours or until 3.3 V',
+                 'Rest for 1 hours',
+                 'Charge at C/4 until 4.1 V',
+                 #'Hold at 4.1V until 50 mA',
+                 'Rest for 1 hour')
+            ] * 1
+        )
+    if duration == 8:
+        experiment = pybamm.Experiment(
+            [
+                ('Discharge at C/8 for 8 hours or until 3.3 V',
+                 'Rest for 1 hours',
+                 'Charge at C/8 until 4.1 V',
+                         #'Hold at 4.1V until 50 mA',
+                 'Rest for 1 hour')
+            ] * 1
+        )
 
     parameter_values['Ambient temperature [K]'] = temp_set
-    parameter_values['Negative current collector thickness [m]'] = read.find_num(cell, cell.index[1], 'Thickness [m]')
-    parameter_values['Positive current collector thickness [m]'] = read.find_num(cell, cell.index[0], 'Thickness [m]')
-    parameter_values['Negative electrode active material volume fraction'] = .75
-    parameter_values['Negative electrode porosity'] = .25
+
+    parameter_values['Negative current collector thickness [m]'] = cell.loc['Negative Current Collector']['Thickness [m]']
+    parameter_values['Positive current collector thickness [m]'] = cell.loc['Positive Current Collector']['Thickness [m]']
+    parameter_values['Negative electrode active material volume fraction'] = read.find_num(cell, cell.index[2], 'Material Ratio (% by mass)')
+    parameter_values['Negative electrode porosity'] = read.find_num(cell, cell.index[2], 'Porosity (%)')
     parameter_values['Negative electrode thickness [m]'] = read.find_num(cell, cell.index[2], 'Thickness [m]')
     #parameter_values['Positive Electrode Chemistry (NCA/NMC with ratio, LFP)'] # No defaut value in pybamm
-    parameter_values['Positive electrode active material volume fraction'] = .665
-    parameter_values['Positive electrode porosity'] = .335
+    parameter_values['Positive electrode active material volume fraction'] = read.find_num(cell, cell.index[5], 'Material Ratio (% by mass)')
+    parameter_values['Positive electrode porosity'] = read.find_num(cell, cell.index[5], 'Material Ratio (% by mass)')
     parameter_values['Positive electrode thickness [m]'] = read.find_num(cell, cell.index[5], 'Thickness [m]')
     parameter_values['Separator porosity'] = read.find_num(cell, cell.index[12], 'Porosity (%)')
     parameter_values['Separator thickness [m]'] = read.find_num(cell, cell.index[12], 'Thickness [m]')
 
+    parameter_values['Electrode height [m]'] = read.find_num(cell, cell.index[2], 'Length [mm]')/1000
+    parameter_values['Electrode width [m]'] = read.find_num(cell, cell.index[2], 'Width [mm]')/1000
 
+    #parameters_values['']
+    #print(parameter_values['Positive electrode specific capacity'])
     sim = pybamm.Simulation(model, parameter_values=parameter_values, experiment = experiment)
     sim.solve()
-    bam_data = sim.solution['Total heating [W.m-3]'].entries
+
+    bam_data = sim.solution['Volume-averaged total heating [W.m-3]'].entries
+    print(len(bam_data))
+    print(len(sim.solution['Total heating'].entries))
+    print(len(sim.solution['Time [h]'].entries))
+    print(sim.solution['Time [h]'].entries[60])
+    #plt.plot(sim.solution['Time [h]'].entries, bam_data)
 
 
-    heat_range = []
-    for i in range(0,len(bam_data[0,:])):
-        heat_range.append(sum(bam_data[:,i]))
+    q_out = np.zeros(24)
+    print(q_out)
+
+    q_out[18] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[0:60])
+    q_out[19] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[60:120])
+
+    if duration == 2:
+        q_out[12] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[180:240])
+        q_out[13] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[240:300])
+
+    if duration == 4:
+        q_out[20] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[120:180])
+        q_out[21] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[180:240])
+        q_out[11] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[300:360])
+        q_out[12] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[360:420])
+        q_out[13] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[420:480])
+        q_out[14] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[480:600])
+    if duration == 8:
+        q_out[20] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[120:180])
+        q_out[21] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[180:240])
+        q_out[22] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[240:300])
+        q_out[23] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[300:360])
+        q_out[0] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[360:420])
+        q_out[1] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[420:480])
+
+        q_out[9] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[540:600])
+        q_out[10] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[600:660])
+        q_out[11] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[660:720])
+        q_out[12] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[720:780])
+        q_out[13] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[660:720])
+        q_out[14] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[720:780])
+        q_out[15] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[780:840])
+        q_out[16] = np.sum(sim.solution['Volume-averaged total heating [W.m-3]'].entries[840:800])
+
+    #print(q_out)
+
 
 
     cells = read.find_num(module, module.index[2], 'Number per module')
+    print(cells)
     modules = read.find_num(rack, rack.index[0], 'Number per rack')
+    print(modules)
     racks = read.find_num(housing, housing.index[0], 'Number')
+    print(racks)
 
     bat_thick = read.find_num(cell, cell.index[2], 'Thickness [m]') * 2 + .000025
-    bat_width = read.find_num(cell, cell.index[2], 'Width [mm]')
-    bat_len = read.find_num(cell, cell.index[2], 'Length [mm]')
+    print(bat_thick)
+    bat_width = read.find_num(cell, cell.index[2], 'Width [mm]')/1000
+    bat_len = read.find_num(cell, cell.index[2], 'Length [mm]')/1000
+
+    bat_volume = bat_thick * bat_width * bat_len #* cells * modules * racks
+    print(bat_volume)
+
+    q_out = q_out*60*60 #watts to J
 
     # kJ = ((W/m^3 / unitless) * m * m * m) / (J/kJ)
-    Q_BAT = (float(sum(heat_range))/float(len(heat_range))) * bat_thick * bat_width * (10**(-3)) * bat_len * (10**(-3)) * ((cells * modules * racks)**2) / 1000
-
+    #Q_BAT = (float(sum(heat_range))/float(len(heat_range))) * bat_thick * bat_width * (10**(-3)) * bat_len * (10**(-3)) * ((cells * modules * racks)**2) / 1000
+    Q_BAT = q_out * bat_volume/1000
+    #print(Q_BAT)
 
     return(Q_BAT)
 
@@ -349,15 +425,19 @@ housing = components[3]
 #T_final = []
 end = 24*7 # starting with one week
 temp_data = monthly_temp(0, 0, end)
-T_start = temp_data[0]
+print(temp_data[0])
+T_start = temp_data[1]
 step = 1
 
 
 Q_HVAC = Q_hvac(housing, 'BTU Rating (cooling)') # does this unit match the others?
 Q_CON = Q_convection(temp_data, housing, temp_set, h, step)[0]
-#Q_BAT = Q_bat(cell, temp_set) # Still working to convert heat to kJ
-Q_BAT = 36000 # Remove when function works
-
+print(Q_CON)
+Q_BAT = Q_bat(temp_set, 4) # Still working to convert heat to kJ
+print(list(Q_BAT))
+#Q_BAT = 36000 # Remove when function works
+bat= list(Q_BAT)
+print(len(bat))
 m = Q_convection(temp_data, housing, temp_set, h, step)[1]
 
 from scipy.optimize import minimize, Bounds, LinearConstraint
@@ -368,8 +448,25 @@ print(Q_HVAC)
 print(np.average(Q_CON))
 lb = Q_CON.copy() # this is an equality constraint
 ub = Q_CON.copy() # this is an equality constraint
-lb.extend([Q_BAT]*end) # repeats the one value of Q_BAT the same number of times, this could be different if we have time dependent Q_Bat data
-ub.extend([Q_BAT]*end) # same as lb because it's an equality constraint
+print(len(lb))
+print(len(list(Q_BAT)))
+lb.extend(Q_BAT)
+lb.extend(Q_BAT)
+lb.extend(Q_BAT)
+lb.extend(Q_BAT)
+lb.extend(Q_BAT)
+lb.extend(Q_BAT)
+lb.extend(Q_BAT) # repeats the one value of Q_BAT the same number of times, this could be different if we have time dependent Q_Bat data
+
+ub.extend(Q_BAT)
+ub.extend(Q_BAT)
+ub.extend(Q_BAT)
+ub.extend(Q_BAT)
+ub.extend(Q_BAT)
+ub.extend(Q_BAT)
+ub.extend(Q_BAT)
+ # same as lb because it's an equality constraint
+print(len(lb))
 x0start = lb.copy()
 lb.extend([-Q_HVAC*30]*end) # maximum heat removal
 ub.extend([Q_HVAC*30]*end) # maximum heat that we can generate. I don't know if this is right. If no heater, replace Q_HVAC with 0
@@ -392,7 +489,7 @@ print(res.x) #items 0:end are Q_con, end:2*end are Q_Bat, 2*end:3*end are Q_HVAC
 q_con_out = res.x[0:end]
 q_bat_out = res.x[end:2*end]
 q_hvac_out = res.x[2*end:3*end]
-temp_out = res.x[3*end:-1] #keeps matching number of datapoints 
+temp_out = res.x[3*end:-1] #keeps matching number of datapoints
 ################################### Main ######################################
 if __name__ == '__main__':
 
