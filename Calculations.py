@@ -93,7 +93,14 @@ maxsumcost3 = sum(temp_val.values)
 print('Total estimated cost (USD) for Housing:', maxsumcost3)
 
 # Total cost calculation
-totalcost = maxsumcost0 + maxsumcost1 + maxsumcost2 + maxsumcost3
+cell = dataframes[0]
+module = dataframes[1]
+rack = dataframes[2]
+housing = dataframes[3]
+cellpermod = float(module.loc['Cells', 'Number per module'])
+modperrack = float(rack.loc['Modules', 'Number per rack'])
+rackperhousing = float(housing.loc['Racks', 'Number'])
+totalcost = (maxsumcost0*cellpermod*modperrack*rackperhousing) + (maxsumcost1*modperrack*rackperhousing) + (maxsumcost2*rackperhousing) + maxsumcost3
 print('Total estimated cost (USD) for system:', totalcost)
 
 
@@ -137,10 +144,6 @@ if __name__ == '__main__':
 
 ###################################################### Time Value of Money Calculations ################################################
 components = read.create_dataframes(read.define_sheet_data('Battery_System_Components'), "Select a Configuration")
-cell = components[0]
-module = components[1]
-rack = components[2]
-housing = components[3]
 
 cells = read.find_num(module, module.index[2], 'Number per module')
 modules = read.find_num(rack, rack.index[0], 'Number per rack')
