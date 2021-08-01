@@ -12,7 +12,7 @@ import ReadSheet as read
 components = read.create_dataframes(read.define_sheet_data('Battery_System_Components'), "Select a Configuration")
 
 df0 = components[0]
-print(df0)
+#print(df0)
 #dataframes = create_dataframes(define_sheet_data())
 #df0 = dataframes[0]
 df0['Total Cost (USD)'] = pd.to_numeric(df0['Total Cost (USD)'], errors='coerce')  # Converting every cost value to numeric
