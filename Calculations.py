@@ -102,18 +102,18 @@ components = read.create_dataframes(read.define_sheet_data('Battery_System_Compo
 cells = read.find_num(module, module.index[2], 'Number per module')
 modules = read.find_num(rack, rack.index[0], 'Number per rack')
 racks = read.find_num(housing, housing.index[0], 'Number')
-print(cells, modules, racks)
+print('Cells, modules, racks:', cells, modules, racks)
 
 
 AnodeCapacity = read.find_num(cell, cell.index[2], 'Total Capacity [Ah]')*read.find_num(cell, cell.index[8], 'Nominal Voltage (V)')
 CathodeCapacity = read.find_num(cell, cell.index[5], 'Total Capacity [Ah]')*read.find_num(cell, cell.index[8], 'Nominal Voltage (V)')
-print(AnodeCapacity, CathodeCapacity)
+print('Anode Capacity, Cathode Capacity:', AnodeCapacity, CathodeCapacity)
 cellcapacity = min(AnodeCapacity, CathodeCapacity)
 
 
 totalenergy = cellcapacity*cells*modules*racks/1000
-print(totalenergy)
-print(totalcost/(totalenergy))
+print('Total Energy:', totalenergy)
+print('Total Cost/Total Energy:', totalcost/(totalenergy))
 hoursdischarge = 4   #Convert this to pull data from the experiment we are running #Pull from experiment
 storageDuration = 2  #Number of hours are variable - case by case basis #Pull from experiment
 eta_RTE = 0.81   #Conservative estimate
@@ -128,4 +128,4 @@ elecPrice = 0.025 #per kWH
 
 from lcosScripts import calculateLCOS
 LCOS = calculateLCOS(ratedPower, storageDuration, eta_RTE, eta_discharge, eta_charge, capX_energy, capX_power, OM, elecPrice)
-print(LCOS)
+print('LCOS:', LCOS)
