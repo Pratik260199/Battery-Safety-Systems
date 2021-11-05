@@ -29,7 +29,7 @@ def define_sheet_data(sheet):
     
     rows = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=DATA_TO_PULL).execute()
     data = rows.get('values')
-    
+
     return(data)
 
 
@@ -46,20 +46,20 @@ def create_dataframes(data, index):
     section = [] # List for individual sections
     
     for i in data:
+       # print(data.columns)
         if i == [] or i == data[-1]: # Indicates breaks between sections or end
             if section == []:
                 pass
             else:
                 if i == data[-1]: # Needed to add last line of last section
-                    section.append(i) 
-                    
+                    section.append(i)
+                    print(section[0])
                 # section[0] should always be the label from spreadsheet
-                df.append(pd.DataFrame(section[1:len(section)], columns=section[0])
-                          .set_index(index, drop = True))
+                df.append(pd.DataFrame(section[0:len(section)], columns=section[0])
+                          .set_index(index, drop=True))
                 section = []
         else:
             section.append(i)
-           
     return(df)
 
 # Used to find a specific number from pandas dataframe
@@ -71,7 +71,7 @@ def create_dataframes(data, index):
 def find_num(dataframe, component, spec):
 
     value = float(dataframe.loc[component, spec])
-        
+
     return(value)
 
 # Used to find a specific word from pandas dataframe

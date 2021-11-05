@@ -502,7 +502,7 @@ if __name__ == '__main__':
     plt.xlabel("Time (Hour)")
     plt.ylabel("Housing Temp (K)")
     plt.title(f"Housing temp per {step} hour(s) over {int(np.floor((end-start)/730))} month(s)")
-    plt.axhline(y=x, label = 'Average Interior Temperature')
+   # plt.axhline(y=x, label = 'Average Interior Temperature')
     plt.axhline(y=f_to_k(temp_set), linestyle = 'dashed', color='black', label ='Set Interior Temperature')
     plt.legend()
     plt.show()

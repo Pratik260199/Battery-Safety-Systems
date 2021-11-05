@@ -9,10 +9,10 @@ import ReadSheet as read
 
 ################################################### Cost Calculations ######################################################
 # Cost Total for Cell Components
-components = read.create_dataframes(read.define_sheet_data('Battery_System_Components'), "Select a Configuration")
-
+#print(read.define_sheet_data('Battery_System_Components'))
+components = read.create_dataframes(read.define_sheet_data('Battery_System_Components'), "Subcomponent")
+#print(components)
 df0 = components[0]
-#print(df0)
 #dataframes = create_dataframes(define_sheet_data())
 #df0 = dataframes[0]
 df0['Total Cost (USD)'] = pd.to_numeric(df0['Total Cost (USD)'], errors='coerce')  # Converting every cost value to numeric
@@ -24,6 +24,8 @@ print('Total estimated cost (USD) for Cells:', maxsumcost0)
 
 # Cost Total for Module Components
 df1 = components[1]
+#print(df1.loc['Cells','Number per module'])
+
 df1['Cost (USD)'] = pd.to_numeric(df1['Cost (USD)'], errors='coerce')  # Converting every cost value to numeric
 df1['Cost (USD)'] = df1['Cost (USD)'].fillna(0)  # Replacing NaN or string values with zero
 temp_val = df1['Cost (USD)']
@@ -51,7 +53,7 @@ cell = components[0]
 module = components[1]
 rack = components[2]
 housing = components[3]
-cellpermod = float(module.loc['Cells', 'Number per module'])
+cellpermod = float(module.loc['Total Cells', 'Number per module'])
 modperrack = float(rack.loc['Modules', 'Number per rack'])
 rackperhousing = float(housing.loc['Racks', 'Number'])
 totalcost = (maxsumcost0*cellpermod*modperrack*rackperhousing) + (maxsumcost1*modperrack*rackperhousing) + (maxsumcost2*rackperhousing) + maxsumcost3
@@ -98,15 +100,17 @@ if __name__ == '__main__':
 
 ###################################################### Time Value of Money Calculations ################################################
 components = read.create_dataframes(read.define_sheet_data('Battery_System_Components'), "Select a Configuration")
+#print(module.head(5))
+#print(module.index[2])
+cells = read.find_num(module,'Total Cells', 'Number per module')
 
-cells = read.find_num(module, module.index[2], 'Number per module')
-modules = read.find_num(rack, rack.index[0], 'Number per rack')
-racks = read.find_num(housing, housing.index[0], 'Number')
-print('Cells, modules, racks:', cells, modules, racks)
+modules = read.find_num(rack,'Modules', 'Number per rack')
+racks = read.find_num(housing,'Racks', 'Number')
+#print('Cells, modules, racks:', cells, modules, racks)
 
 
-AnodeCapacity = read.find_num(cell, cell.index[2], 'Total Capacity [Ah]')*read.find_num(cell, cell.index[8], 'Nominal Voltage (V)')
-CathodeCapacity = read.find_num(cell, cell.index[5], 'Total Capacity [Ah]')*read.find_num(cell, cell.index[8], 'Nominal Voltage (V)')
+AnodeCapacity = read.find_num(cell,'Anode Active Material', 'Total Capacity [Ah]')*read.find_num(cell,'Chemistry', 'Nominal Voltage (V)')
+CathodeCapacity = read.find_num(cell,'Cathode Active Material', 'Total Capacity [Ah]')*read.find_num(cell,'Chemistry', 'Nominal Voltage (V)')
 print('Anode Capacity, Cathode Capacity:', AnodeCapacity, CathodeCapacity)
 cellcapacity = min(AnodeCapacity, CathodeCapacity)
 
@@ -129,3 +133,20 @@ elecPrice = 0.025 #per kWH
 from lcosScripts import calculateLCOS
 LCOS = calculateLCOS(ratedPower, storageDuration, eta_RTE, eta_discharge, eta_charge, capX_energy, capX_power, OM, elecPrice)
 print('LCOS:', LCOS)
+
+#$/kWh for cells only
+numerator1 = maxsumcost0*read.find_num(module,'Total Cells', 'Number per module') + maxsumcost1/read.find_num(rack,'Modules', 'Number per rack')
+denominator1 = cellcapacity*read.find_num(module,'Total Cells', 'Number per module')
+Cost_pkWh_cell = numerator1/denominator1
+#print(maxsumcost0)
+#print(read.find_num(module,'Total Cells', 'Number per module'))
+#print(maxsumcost1/read.find_num(rack,'Modules', 'Number per rack'))
+#print(maxsumcost0)
+#print(read.find_num(module,'Total Cells', 'Number per module'))
+#print(cellcapacity)
+#print(read.find_num(module,'Total Cells', 'Number per module'))
+print('$/kWh for cells: ', Cost_pkWh_cell)
+
+#$/kWh for cells+modules
+#numerator2 =  maxsumcost0*read.find_num(module,'Total Cells', 'Number per module')
+#push
