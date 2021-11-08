@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "bat-sys-comp",
+  "private_key_id": "7e968489ad5db612039c6a73abde9c51171eaee6",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEuwIBADANBgkqhkiG9w0BAQEFAASCBKUwggShAgEAAoIBAQCmPZV2TLTtA03p\n173hTmRz/OFnfRRRLSncugZRBOgXIahn4sL2uE9Q2IyASvc/4DMXxLiUA7hG5k1t\nK5gVRrUVR/GipRJOcaZeA6ed2dRIt8kJF17WYMhq7/PDdHHf42SIx76aox+ibhph\nGmP+P/tLmLYPwSOczgJ4bVLCsFyeoA4MxVtI+2b0J0UP3IYGsYIkWax0vWEXuRbU\ndQ7fjhDpWgcIIT4XToF+1bXQdfyIremHM4xgW3/auCLP9Z2tfLZr9vMJLeXZP93m\nML09O/DbkWA8IfEHz3lLrdBkxRKxKNEg7W0Zm9V8U4kaO7dW3SgKdvsmebHt6PDm\nE2tXVzENAgMBAAECgf8cEEDZ7yGb4UyF3FBxq71jG3x6RHzYe5hmnd6dxjqKE4ai\n8eTvQXrM859vCPR4nI969/qoV17RQ+T44pqSdGGMXIwDdcDHyhr6qmeMF9eggBDB\nFgH5WWXRUlK+/TpvQDPnfOHfUqHNCeLZErDGJbogBKNiHxJOpkUzbR8HPscOmYWi\nspPx/wvTAIzmsCZOqbfnop5Uh/EILo9DKoafFuj99yMvma7J5HMoReGfFr2+vUow\nXoJgB6PXJmkyDJ6n5zh8Tz+Wgi+eLoSoatQGjsG9LOLgb0Szm+f/tGetkXCRwSkL\nKDLG26qXdOI7z+L/Ny92siF1CjrCMuxYaR/xGQECgYEA6B/qn47vYdVzQACfpSWl\nbwN7cOAi1lPSaHB0p/R1rnyJmuPFzLgcNuWTd1qF1AQ72BOHkhCNtnb4OEApL5ZB\nRhNOeBuaAoLfynA6UPtXuHKOjL8B87r8lWDdoEaOm01JRo5kHWZ4IxDCTJGX60mc\nQN1uJ73t3Upnfn4KSu1B+A0CgYEAt1bezNlMihU8N2Qc4uGQnL9nINUsoObozes0\nTbfDyRyxpGimdqt2Yf+zjS3x9ZIWC47ExNXXX1XKE8HkO1B08EO/Fb9VDe4DpqBN\nx7iL9q2I8i5Qyj2nszK4eH0md12Ws8C8mT+wbIXj6yRCVNWoFDhNRwARr1QPITAN\n2FQ63QECgYBzcqRLlViDzRiUBXthNNcR3qZ/XkqVVH06imvKuO/qx2/dBFn1VsBZ\noVb1rqUO7Mgi0JvFzsvcq1ELEQYq780pICMP45J2m0bYtXabnlZjmz5AzCMZaK+F\nT/cKZu04WnkOSXWLldI8hnJMiMEJOcQoErldtL3gKMhOhjtyRoxf5QKBgCYPVZ9G\n+PmtYNvK36hF1USFA36wYlxgszGUQz5jCLTmTQZpZy05eRDtCTQktpcZJZRupfCK\nx/QVlia12JBrqmr6VV/JYXnL0Fw16Q+uAvhJnCVSchkZ5Ydw3xS8PlEHT7KvLzfN\nHe3ZebAlzdNYq1TPP1Oe8wznsWBdXnJrQfEBAoGBAN1qGDrbsCujZ9PL8h13M3O6\n6XuaIxMHqnDb8s4VWwNJLzGAwgLzY7Z3i0GvtwkEXC6cLzRGO1Mt+Xk86hsOojpv\nsKwZ/1z9wyVwGbmE7z0WaMy/uyReogJKXXgHSawFwuYVz7EfBVkqSWe4TzEWemCz\nlrvMCfKovg1jXYsXhdFF\n-----END PRIVATE KEY-----\n",
+  "client_email": "my-service-account@bat-sys-comp.iam.gserviceaccount.com",
+  "client_id": "102293988920571579607",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/my-service-account%40bat-sys-comp.iam.gserviceaccount.com"
+}
