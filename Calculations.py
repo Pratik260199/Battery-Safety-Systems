@@ -113,6 +113,7 @@ AnodeCapacity = read.find_num(cell,'Anode Active Material', 'Total Capacity [Ah]
 CathodeCapacity = read.find_num(cell,'Cathode Active Material', 'Total Capacity [Ah]')*read.find_num(cell,'Chemistry', 'Nominal Voltage (V)')
 print('Anode Capacity, Cathode Capacity:', AnodeCapacity, CathodeCapacity)
 cellcapacity = min(AnodeCapacity, CathodeCapacity)
+print('Cell capacity:', cellcapacity/1000,'kWh')
 
 
 totalenergy = cellcapacity*cells*modules*racks/1000
@@ -134,19 +135,22 @@ from lcosScripts import calculateLCOS
 LCOS = calculateLCOS(ratedPower, storageDuration, eta_RTE, eta_discharge, eta_charge, capX_energy, capX_power, OM, elecPrice)
 print('LCOS:', LCOS)
 
-#$/kWh for cells only
-numerator1 = maxsumcost0*read.find_num(module,'Total Cells', 'Number per module') + maxsumcost1/read.find_num(rack,'Modules', 'Number per rack')
-denominator1 = cellcapacity*read.find_num(module,'Total Cells', 'Number per module')
-Cost_pkWh_cell = numerator1/denominator1
-#print(maxsumcost0)
-#print(read.find_num(module,'Total Cells', 'Number per module'))
-#print(maxsumcost1/read.find_num(rack,'Modules', 'Number per rack'))
-#print(maxsumcost0)
-#print(read.find_num(module,'Total Cells', 'Number per module'))
-#print(cellcapacity)
-#print(read.find_num(module,'Total Cells', 'Number per module'))
-print('$/kWh for cells: ', Cost_pkWh_cell)
+#$/kWh for 1 single cell
+numerator1 = maxsumcost0
+denominator1 = (cellcapacity/1000)
+Cost_pkWh_1 = numerator1/denominator1
+print('$/kWh for 1 single cell: ', Cost_pkWh_1)
 
 #$/kWh for cells+modules
-#numerator2 =  maxsumcost0*read.find_num(module,'Total Cells', 'Number per module')
-#push
+numerator2 =  maxsumcost0*read.find_num(module,'Total Cells', 'Number per module')+maxsumcost1/read.find_num(rack,'Modules', 'Number per rack')
+denominator2 = (cellcapacity/1000)*(read.find_num(module,'Total Cells', 'Number per module'))
+Cost_pkWh_2 = numerator2/denominator2
+print('$/kWh for cells + module:',Cost_pkWh_2)
+
+#$/kWh for cells + modules + rack
+#numerator3 = maxsumcost0*read.find_num(module,'Total Cells', 'Number per module')*read.find_num(rack,'Modules', 'Number per rack')+maxsumcost1+
+#print(maxsumcost0)
+#print(read.find_num(module,'Total Cells', 'Number per module'))
+#print(read.find_num(rack,'Modules', 'Number per rack'))
+#print(maxsumcost1)
+print(maxsumcost2)
