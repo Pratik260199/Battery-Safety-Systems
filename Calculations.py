@@ -17,7 +17,7 @@ df0 = components[0]
 #df0 = dataframes[0]
 df0['Total Cost (USD)'] = pd.to_numeric(df0['Total Cost (USD)'], errors='coerce')  # Converting every cost value to numeric
 df0['Total Cost (USD)'] = df0['Total Cost (USD)'].fillna(0)  # Replacing NaN or string values with zero
-print(sum(df0['Total Cost (USD)']))
+#print(sum(df0['Total Cost (USD)']))
 temp_val = df0['Total Cost (USD)']
 maxsumcost0 = sum(temp_val.values)
 print('Total estimated cost (USD) for Cells:', maxsumcost0)
@@ -26,25 +26,25 @@ print('Total estimated cost (USD) for Cells:', maxsumcost0)
 df1 = components[1]
 #print(df1.loc['Cells','Number per module'])
 
-df1['Cost (USD)'] = pd.to_numeric(df1['Cost (USD)'], errors='coerce')  # Converting every cost value to numeric
-df1['Cost (USD)'] = df1['Cost (USD)'].fillna(0)  # Replacing NaN or string values with zero
-temp_val = df1['Cost (USD)']
+df1['Total Cost (USD)'] = pd.to_numeric(df1['Total Cost (USD)'], errors='coerce')  # Converting every cost value to numeric
+df1['Total Cost (USD)'] = df1['Total Cost (USD)'].fillna(0)  # Replacing NaN or string values with zero
+temp_val = df1['Total Cost (USD)']
 maxsumcost1 = sum(temp_val.values)
 print('Total estimated cost (USD) for Modules:', maxsumcost1)
 
 # Cost Total for Rack Components
 df2 = components[2]
-df2['Cost (USD)'] = pd.to_numeric(df2['Cost (USD)'], errors='coerce')  # Converting every cost value to numeric
-df2['Cost (USD)'] = df2['Cost (USD)'].fillna(0)  # Replacing NaN or string values with zero
-temp_val = df2['Cost (USD)']
+df2['Total Cost (USD)'] = pd.to_numeric(df2['Total Cost (USD)'], errors='coerce')  # Converting every cost value to numeric
+df2['Total Cost (USD)'] = df2['Total Cost (USD)'].fillna(0)  # Replacing NaN or string values with zero
+temp_val = df2['Total Cost (USD)']
 maxsumcost2 = sum(temp_val.values)
 print('Total estimated cost (USD) for Racks:', maxsumcost2)
 
 # Cost Total for Housing Components
 df3 = components[3]
-df3['Cost (USD)'] = pd.to_numeric(df3['Cost (USD)'], errors='coerce')  # Converting every cost value to numeric
-df3['Cost (USD)'] = df3['Cost (USD)'].fillna(0)  # Replacing NaN or string values with zero
-temp_val = df3['Cost (USD)']
+df3['Total Cost (USD)'] = pd.to_numeric(df3['Total Cost (USD)'], errors='coerce')  # Converting every cost value to numeric
+df3['Total Cost (USD)'] = df3['Total Cost (USD)'].fillna(0)  # Replacing NaN or string values with zero
+temp_val = df3['Total Cost (USD)']
 maxsumcost3 = sum(temp_val.values)
 print('Total estimated cost (USD) for Housing:', maxsumcost3)
 
@@ -142,15 +142,27 @@ Cost_pkWh_1 = numerator1/denominator1
 print('$/kWh for 1 single cell: ', Cost_pkWh_1)
 
 #$/kWh for cells+modules
-numerator2 =  maxsumcost0*read.find_num(module,'Total Cells', 'Number per module')+maxsumcost1/read.find_num(rack,'Modules', 'Number per rack')
+numerator2 =  maxsumcost0*read.find_num(module,'Total Cells', 'Number per module')+maxsumcost1
 denominator2 = (cellcapacity/1000)*(read.find_num(module,'Total Cells', 'Number per module'))
 Cost_pkWh_2 = numerator2/denominator2
 print('$/kWh for cells + module:',Cost_pkWh_2)
 
 #$/kWh for cells + modules + rack
-#numerator3 = maxsumcost0*read.find_num(module,'Total Cells', 'Number per module')*read.find_num(rack,'Modules', 'Number per rack')+maxsumcost1+
+numerator3 = maxsumcost0*read.find_num(module,'Total Cells', 'Number per module')*read.find_num(rack,'Modules', 'Number per rack')+maxsumcost1*read.find_num(rack,'Modules', 'Number per rack')+maxsumcost2
 #print(maxsumcost0)
 #print(read.find_num(module,'Total Cells', 'Number per module'))
 #print(read.find_num(rack,'Modules', 'Number per rack'))
 #print(maxsumcost1)
-print(maxsumcost2)
+#print(read.find_num(rack,'Modules', 'Number per rack'))
+#print(maxsumcost2)
+denominator3 = (cellcapacity/1000)*(read.find_num(module,'Total Cells', 'Number per module'))*(read.find_num(rack,'Modules', 'Number per rack'))
+Cost_pkWh_3 = numerator3/denominator3
+print('$/kWh for cells + modules + rack:',Cost_pkWh_3)
+
+#$/kWh for Overall System
+numerator4 = maxsumcost0*read.find_num(module,'Total Cells', 'Number per module')*read.find_num(rack,'Modules', 'Number per rack')*read.find_num(housing,'Racks', 'Number')+maxsumcost1*read.find_num(rack,'Modules', 'Number per rack')*read.find_num(housing,'Racks', 'Number')+maxsumcost2*read.find_num(housing,'Racks', 'Number')+maxsumcost3
+#print(read.find_num(housing,'Racks', 'Number'))
+denominator4 = (cellcapacity/1000)*(read.find_num(module,'Total Cells', 'Number per module'))*(read.find_num(rack,'Modules', 'Number per rack'))*(read.find_num(housing,'Racks', 'Number'))
+Cost_pkWh_4 = numerator4/denominator4
+print('$/kWh for Overall System:',Cost_pkWh_4)
+
