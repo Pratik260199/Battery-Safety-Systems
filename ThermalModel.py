@@ -17,14 +17,14 @@ c_p = .7585 # kJ/kg.K ; Specific heat at constant pressure (atmospheric)
 # Converts Fahrenheit to Kelvin
 def f_to_k(f):
 
-    k = ((f - 32) / 1.8) + 273.15
+    k = ((f - 32.0) / 1.8) + 273.15
 
     return(k)
 
 # Converts Kelvin to Fahrenheit
 def k_to_f(k):
 
-    f = 1.8 * (k - 273.15) + 32
+    f = 1.8 * (k - 273.15) + 32.0
 
     return(f)
 
@@ -39,9 +39,13 @@ def BTU_to_kJ(BTU):
 
 # Calculates the change in daily temperature per hour
 def max_min_temp_diff(clim, month):
-
-    max_temp = f_to_k(read.find_num(clim, month, 'MLY-TMAX-NORMAL'))
-    min_temp = f_to_k(read.find_num(clim, month, 'MLY-TMIN-NORMAL'))
+    #print(clim.drop(['month']))
+    #print(month)
+    #print(clim.index)
+   # print(clim, str(month), 'MLY-TMAX-NORMAL')
+   # print(clim.loc[month, ['MLY-TMAX-NORMAL']])
+    max_temp = f_to_k(read.find_num(clim, month,['MLY-TMAX-NORMAL']))
+    min_temp = f_to_k(read.find_num(clim, month,['MLY-TMIN-NORMAL']))
     avg_temp = max_temp - min_temp # K
 
     return(avg_temp)
@@ -113,20 +117,25 @@ def daily_temps(min_temp, max_temp, avg, month):
     # mnly: The estimated temperature at each hour for the specified hours
 def monthly_temp(region, start, end):
 
-    # Read climate data
+    # Read Climate data
     climate = read.create_dataframes(read.define_sheet_data('Climate Data'), 'month')
+    climate_1 = climate[region]
+    climate_2 = climate_1.drop(['month'])
+    #print(climate_2)
+    #climate = climate.drop(['month'])
 
     # Initializing lists
     avg = []
     minim = []
     maxim = []
     mnly = []
-
+    #print(climate[region].index)
     # Determines changes between monthly max and mins
-    for i in climate[region].index:
-        avg.append(max_min_temp_diff(climate[region], i))
-        maxim.append(monthly_temp_diff(climate[region], i, 'MLY-TMAX-NORMAL'))
-        minim.append(monthly_temp_diff(climate[region], i, 'MLY-TMIN-NORMAL'))
+    for i in climate_2.index:
+        #print(i+1)
+        avg.append(max_min_temp_diff(climate_2, i))
+        maxim.append(monthly_temp_diff(climate_2, i, 'MLY-TMAX-NORMAL'))
+        minim.append(monthly_temp_diff(climate_2, i, 'MLY-TMIN-NORMAL'))
 
     # Initializing constants for following loop
     months = 1
@@ -152,8 +161,8 @@ def monthly_temp(region, start, end):
         # For daily changes
         if (j % 24 == 0 and j != 0) or j == end-1:
 
-            day_min = f_to_k(read.find_num(climate[region], str(months), 'MLY-TMIN-NORMAL')) + mon_min_chg
-            day_max = f_to_k(read.find_num(climate[region], str(months), 'MLY-TMAX-NORMAL')) + mon_max_chg
+            day_min = f_to_k(read.find_num(climate_2, 'month', 'MLY-TMIN-NORMAL')) + mon_min_chg
+            day_max = f_to_k(read.find_num(climate_2, 'month', 'MLY-TMAX-NORMAL')) + mon_max_chg
             for i in daily_temps(day_min, day_max, avg, months-1):
                 mnly.append(i)
 
@@ -257,6 +266,7 @@ def Q_bat(temp_set, duration):
     parameter_values['Separator thickness [m]'] = read.find_num(cell, cell.index[12], 'Thickness [m]')
 
     parameter_values['Electrode height [m]'] = read.find_num(cell, cell.index[2], 'Length [mm]')/1000
+    parameter_values['Electrode height [m]'] = read.find_num(cell, cell.index[2], 'Length [mm]')/1000
     parameter_values['Electrode width [m]'] = read.find_num(cell, cell.index[2], 'Width [mm]')/1000
 
     #parameters_values['']
@@ -266,7 +276,7 @@ def Q_bat(temp_set, duration):
 
     bam_data = sim.solution['Volume-averaged total heating [W.m-3]'].entries
     #plt.plot(sim.solution['Time [h]'].entries, bam_data)
-
+    #print(bam_data)
 
     q_out = np.zeros(24)
     q_out[18] = np.sum(bam_data[0:60])
@@ -449,7 +459,7 @@ if __name__ == '__main__':
 
 
     # Variable variables
-    region = 1 # Currently 0 or 1
+    region = 0 # Currently 0 or 1
     start = 0 # 0 representing Jan 1st
     end = 8760 # 8760 representing Dec 31st
     step = 1 # Number of hours between recording data points

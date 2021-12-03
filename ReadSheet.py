@@ -53,7 +53,7 @@ def create_dataframes(data, index):
             else:
                 if i == data[-1]: # Needed to add last line of last section
                     section.append(i)
-                    print(section[0])
+                    #print(section[0])
                 # section[0] should always be the label from spreadsheet
                 df.append(pd.DataFrame(section[0:len(section)], columns=section[0])
                           .set_index(index, drop=True))
