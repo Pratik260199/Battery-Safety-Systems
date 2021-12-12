@@ -161,8 +161,8 @@ def monthly_temp(region, start, end):
         # For daily changes
         if (j % 24 == 0 and j != 0) or j == end-1:
 
-            day_min = f_to_k(read.find_num(climate_2, 'month', 'MLY-TMIN-NORMAL')) + mon_min_chg
-            day_max = f_to_k(read.find_num(climate_2, 'month', 'MLY-TMAX-NORMAL')) + mon_max_chg
+            day_min = f_to_k(read.find_num(climate_2, str(month), 'MLY-TMIN-NORMAL')) + mon_min_chg
+            day_max = f_to_k(read.find_num(climate_2, str(month), 'MLY-TMAX-NORMAL')) + mon_max_chg
             for i in daily_temps(day_min, day_max, avg, months-1):
                 mnly.append(i)
 
@@ -188,14 +188,14 @@ def Q_convection(mnly, housing, temp_set, h, step):
     Q_ambient = []
 
     # Caluclate total surface area using width/height/depth
-    width = read.find_num(housing, housing.index[1], 'Width (mm)') / 1000 # m
-    height = read.find_num(housing, housing.index[1], 'Height (mm)') / 1000 # m
-    depth = read.find_num(housing, housing.index[1], 'Depth (mm)') / 1000 # m
+    width = read.find_num(housing, 'Shipping Container', 'Width (mm)') / 1000 # m
+    height = read.find_num(housing, 'Shipping Container', 'Height (mm)') / 1000 # m
+    depth = read.find_num(housing, 'Shipping Container', 'Depth (mm)') / 1000 # m
 
     s_area = 2 * depth * height + 2 * height * width + 2 * depth * width
     s_used = s_area - depth * width
 
-    m = (read.find_num(housing, housing.index[1], 'Weight (kg)') / s_area) * s_used
+    m = (read.find_num(housing, 'Shipping Container', 'Weight (kg)') / s_area) * s_used
 
     for i in range(0,len(mnly),step):
         Q_ambient.append(h * s_area * (-mnly[i] + temp_set))
@@ -255,19 +255,19 @@ def Q_bat(temp_set, duration):
 
     parameter_values['Negative current collector thickness [m]'] = cell.loc['Negative Current Collector']['Thickness [m]']
     parameter_values['Positive current collector thickness [m]'] = cell.loc['Positive Current Collector']['Thickness [m]']
-    parameter_values['Negative electrode active material volume fraction'] = read.find_num(cell, cell.index[2], 'Material Ratio (% by mass)')
-    parameter_values['Negative electrode porosity'] = read.find_num(cell, cell.index[2], 'Porosity (%)')
-    parameter_values['Negative electrode thickness [m]'] = read.find_num(cell, cell.index[2], 'Thickness [m]')
+    parameter_values['Negative electrode active material volume fraction'] = read.find_num(cell, 'Anode Active Material', 'Material Ratio (% by mass)')
+    parameter_values['Negative electrode porosity'] = read.find_num(cell, 'Anode Active Material', 'Porosity (%)')
+    parameter_values['Negative electrode thickness [m]'] = read.find_num(cell, 'Anode Active Material', 'Thickness [m]')
     #parameter_values['Positive Electrode Chemistry (NCA/NMC with ratio, LFP)'] # No defaut value in pybamm
-    parameter_values['Positive electrode active material volume fraction'] = read.find_num(cell, cell.index[5], 'Material Ratio (% by mass)')
-    parameter_values['Positive electrode porosity'] = read.find_num(cell, cell.index[5], 'Material Ratio (% by mass)')
-    parameter_values['Positive electrode thickness [m]'] = read.find_num(cell, cell.index[5], 'Thickness [m]')
-    parameter_values['Separator porosity'] = read.find_num(cell, cell.index[12], 'Porosity (%)')
-    parameter_values['Separator thickness [m]'] = read.find_num(cell, cell.index[12], 'Thickness [m]')
+    parameter_values['Positive electrode active material volume fraction'] = read.find_num(cell, 'Cathode Active Material', 'Material Ratio (% by mass)')
+    parameter_values['Positive electrode porosity'] = read.find_num(cell, 'Cathode Active Material', 'Material Ratio (% by mass)')
+    parameter_values['Positive electrode thickness [m]'] = read.find_num(cell, 'Cathode Active Material', 'Thickness [m]')
+    parameter_values['Separator porosity'] = read.find_num(cell, 'Separator', 'Porosity (%)')
+    parameter_values['Separator thickness [m]'] = read.find_num(cell, 'Separator', 'Thickness [m]')
 
-    parameter_values['Electrode height [m]'] = read.find_num(cell, cell.index[2], 'Length [mm]')/1000
-    parameter_values['Electrode height [m]'] = read.find_num(cell, cell.index[2], 'Length [mm]')/1000
-    parameter_values['Electrode width [m]'] = read.find_num(cell, cell.index[2], 'Width [mm]')/1000
+   #parameter_values['Electrode height [m]'] = read.find_num(cell, cell.index[2], 'Length [mm]')/1000
+    parameter_values['Electrode height [m]'] = read.find_num(cell, 'Anode Active Material', 'Length [mm]')/1000
+    parameter_values['Electrode width [m]'] = read.find_num(cell, 'Anode Active Material', 'Width [mm]')/1000
 
     #parameters_values['']
     #print(parameter_values['Positive electrode specific capacity'])
@@ -310,13 +310,13 @@ def Q_bat(temp_set, duration):
         q_out[15] = np.sum(bam_data[780:840])
         q_out[16] = np.sum(bam_data[840:800])
 
-    cells = read.find_num(module, module.index[2], 'Number per module')
-    modules = read.find_num(rack, rack.index[0], 'Number per rack')
-    racks = read.find_num(housing, housing.index[0], 'Number')
+    cells = read.find_num(module, 'Total Cells', 'Number per module')
+    modules = read.find_num(rack, 'Modules', 'Number per rack')
+    racks = read.find_num(housing, 'Racks', 'Number')
 
-    bat_thick = read.find_num(cell, cell.index[2], 'Thickness [m]') * 2 + .000025 * 35
-    bat_width = read.find_num(cell, cell.index[2], 'Width [mm]')/1000
-    bat_len = read.find_num(cell, cell.index[2], 'Length [mm]')/1000
+    bat_thick = read.find_num(cell, 'Anode Active Material', 'Thickness [m]') * 2 + .000025 * 35
+    bat_width = read.find_num(cell, 'Anode Active Material', 'Width [mm]')/1000
+    bat_len = read.find_num(cell, 'Anode Active Material', 'Length [mm]')/1000
 
     bat_volume = bat_thick * bat_width * bat_len #* cells * modules * racks
     q_out = q_out*60*60 #watts to J
@@ -329,7 +329,7 @@ def Q_bat(temp_set, duration):
 
 def Q_hvac(housing, name):
 
-    Q_HVAC = BTU_to_kJ(read.find_num(housing, housing.index[2], name)) # kJ
+    Q_HVAC = BTU_to_kJ(read.find_num(housing, 'HVAC', name)) # kJ
 
     return(Q_HVAC)
 
@@ -473,7 +473,7 @@ if __name__ == '__main__':
     print(len(temp_data))
 
     T_prev = 1000000000
-    num_HVAC = read.find_num(housing, housing.index[3], 'Number')
+    num_HVAC = read.find_num(housing, 'HVAC', 'Number')
 
     # Determines thermal data (The units are off atm so thing look weird)
     #thermal_data = total_thermal(temp_data, h, step, f_to_k(temp_set), num_HVAC, T_prev)
