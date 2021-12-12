@@ -265,7 +265,7 @@ def Q_bat(temp_set, duration):
     parameter_values['Separator porosity'] = read.find_num(cell, 'Separator', 'Porosity (%)')
     parameter_values['Separator thickness [m]'] = read.find_num(cell, 'Separator', 'Thickness [m]')
 
-   #parameter_values['Electrode height [m]'] = read.find_num(cell, cell.index[2], 'Length [mm]')/1000
+   #parameter_values['Electrode height [m]'] = read.find_num(cell, 'Anode Active Material', 'Length [mm]')/1000
     parameter_values['Electrode height [m]'] = read.find_num(cell, 'Anode Active Material', 'Length [mm]')/1000
     parameter_values['Electrode width [m]'] = read.find_num(cell, 'Anode Active Material', 'Width [mm]')/1000
 
